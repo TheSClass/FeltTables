@@ -26,6 +26,14 @@ type Seat = {
   spirit: string;
 };
 
+function shortName(name: string, max = 10) {
+  const n = (name || "").trim();
+  if (!n) return "";
+  if (n.length <= max) return n;
+  return n.slice(0, max - 1) + "…";
+}
+
+
 const DEFAULT_EVENT_ID = "nightclub-2026-02";
 const EVENT_LABEL = "SClass Felt 2/13/26";
 
@@ -150,35 +158,51 @@ function TableCircle({
 
           const cursor = isFree || isMine ? "pointer" : "not-allowed";
 
+          const seatNum = seatNumberFromId(s.seatId);
+          const name = (s.guestName || "").trim();
+          const displayName = shortName(name, 10);
+
           return (
             <button
-              key={s.seatId}
-              onClick={() => (isFree || isMine) && toggleSeat(s.seatId)}
-              style={{
-                position: "absolute",
-                left: `${p.left}%`,
-                top: `${p.top}%`,
-                transform: "translate(-50%, -50%)",
-                width: 54,
-                height: 54,
-                borderRadius: 999,
-                background: bg,
-                color: textColor,
-                border: "1px solid rgba(255,255,255,0.35)",
-                boxShadow: ring,
-                cursor,
-                fontWeight: 1000,
-              }}
-              title={
-                isMine
-                  ? `${s.seatId} (yours)`
-                  : isFree
-                  ? `${s.seatId} (open)`
-                  : `${s.seatId} (taken)`
-              }
-            >
-              S{seatNumberFromId(s.seatId)}
-            </button>
+                key={s.seatId}
+                onClick={() => (isFree || isMine) && toggleSeat(s.seatId)}
+                style={{
+                    position: "absolute",
+                    left: `${p.left}%`,
+                    top: `${p.top}%`,
+                    transform: "translate(-50%, -50%)",
+                    width: 50,
+                    height: 50,
+                    borderRadius: 999,
+                    background: bg,
+                    color: textColor,
+                    border: "1px solid rgba(255,255,255,0.35)",
+                    boxShadow: ring,
+                    cursor,
+                    fontWeight: 1000,
+                    padding: 4,
+                    lineHeight: 1.05,
+                    display: "grid",
+                    placeItems: "center",
+                    textAlign: "center",
+                }}
+                title={
+                    isMine
+                    ? `${s.seatId} (yours)`
+                    : isFree
+                    ? `${s.seatId} (open)`
+                    : `${s.seatId} (taken)${name ? ` — ${name}` : ""}`
+                }
+                >
+                <div style={{ fontSize: 12, fontWeight: 1000 }}>S{seatNum}</div>
+
+                {/* Only show names on seats taken by other people */}
+                {!isFree && !isMine ? (
+                    <div style={{ fontSize: 9, fontWeight: 900 }}>
+                    {displayName || "Taken"}
+                    </div>
+                ) : null}
+                </button>
           );
         })}
       </div>

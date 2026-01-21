@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { db } from "../firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 
@@ -12,7 +11,7 @@ type Seat = {
   spirit: string;
 };
 
-const DEFAULT_EVENT_ID = "nightclub-2026-02";
+const EVENT_ID = "nightclub-2026-02";
 const EVENT_LABEL = "SClass Felt 2/13/26";
 
 function seatNumberFromId(seatId: string) {
@@ -157,9 +156,6 @@ function TableCircleReadOnly({ tableNum, seats }: { tableNum: number; seats: Sea
 }
 
 export default function ViewOnlyClient() {
-  const search = useSearchParams();
-  const eventId = search.get("event") || DEFAULT_EVENT_ID;
-
   const [seats, setSeats] = useState<Seat[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
@@ -168,7 +164,7 @@ export default function ViewOnlyClient() {
     setLoading(true);
     setErr(null);
 
-    const seatsCol = collection(db, "events", eventId, "seats");
+    const seatsCol = collection(db, "events", EVENT_ID, "seats");
     const unsub = onSnapshot(
       seatsCol,
       (snap) => {
@@ -183,7 +179,7 @@ export default function ViewOnlyClient() {
     );
 
     return () => unsub();
-  }, [eventId]);
+  }, []);
 
   const claimedCount = useMemo(() => seats.filter((s) => s.claimedBy).length, [seats]);
 
